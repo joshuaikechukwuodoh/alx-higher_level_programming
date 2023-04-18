@@ -1,0 +1,31 @@
+#!/usr/bin/python3
+"""
+Created on Sat April  8 09:05:11 2023
+@author: joshua ik
+"""
+import sys
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from relationship_state import Base, State
+from relationship_city import City
+
+
+if __name__ == '__main__':
+    if len(sys.argv) != 4:
+        print("Usage: {} username password database_name".format(sys.argv[0]))
+        sys.exit(1)
+
+    username = sys.argv[1]
+    password = sys.argv[2]
+    database_name = sys.argv[3]
+
+    engine = create_engine("mysql+mysqldb://{user}:{pwd}@localhost/{db_name}"
+                           .format(user=username, pwd=password, db_name=database_name))
+    Base.metadata.create_all(engine)
+
+    with sessionmaker(bind=engine)() as session:
+        california = State(name="California")
+        california.cities = [City(name="San Francisco")]
+        session.add(california)
+        session.commit()
+
